@@ -1,6 +1,6 @@
 const User = require('../models/user.model');
 const mongoose = require('mongoose');
-
+const jwtToken = require('jsonwebtoken');
 exports.addUser = (req, res) => {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -11,7 +11,6 @@ exports.addUser = (req, res) => {
     const userRole = req.body.userRole;
     const birthday = req.body.birthday;
     const gender = req.body.gender;
-
     const user = new User({
         _id: new mongoose.Types.ObjectId(),
         firstName: firstName,
@@ -54,4 +53,32 @@ exports.getAllUsers = (req, res) => {
             error: JSON.stringify(err)
         });
     });
+}
+
+exports.login = (req, res) => {
+    email = req.body.email;
+    password = req.body.password;
+    User.findOne({
+        email: email,
+        password: password
+    }).then(data => {
+        if (data == null) {
+            return res.status(401).json({
+                status: 'ok',
+                message: 'unauthorized'
+            })
+        } else {
+            const token = jwtToken.sign({ user: data }, 'key', { expiresIn: '10h' });
+            return res.status(200).json({
+                status: 'ok',
+                data: token
+            })
+        }
+    })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
 }

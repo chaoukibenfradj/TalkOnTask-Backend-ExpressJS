@@ -6,6 +6,8 @@ const http = require("http");
 const cors = require('cors')
 
 const userRoute = require('./routes/user.route');
+const projectRoute = require('./routes/project.route');
+const taskRoute = require('./routes/task.route');
 
 app.use(bodyParser.urlencoded({
 	extended: false
@@ -28,6 +30,9 @@ Mongoose.connect(db || process.env.MONGODB_URI, {
 app.use(cors());
 
 app.use('/user', userRoute);
+app.use('/task', taskRoute);
+app.use('/project', projectRoute);
+
 
 const port = process.env.PORT || 3000;
 const server = http.createServer(app);
