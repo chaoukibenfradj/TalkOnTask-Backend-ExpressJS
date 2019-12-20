@@ -82,3 +82,19 @@ exports.login = (req, res) => {
             });
         });
 }
+
+exports.getUserByType = (req, res) => {
+    userType = req.params.userType;
+    User.find({
+        userRole: userType
+    }).then(data => {
+        return res.status(200).json({
+            message: 'ok',
+            data: data
+        });
+    }).catch(err => {
+        return res.status(500).json({
+            error: JSON.stringify(err)
+        });
+    });;
+}

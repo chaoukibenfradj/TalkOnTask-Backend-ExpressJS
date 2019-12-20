@@ -5,6 +5,7 @@ const projectSchema = mongoose.Schema({
     title: { type: String },
     description: { type: String },
     chef: { type: String, ref: 'User' },
+    devTeamId : [{type : String , ref : 'User'}],
     estimated_start_date: { type: Date },
     estimated_end_date: { type: Date },
     created_at: { type: Date, default: Date.now },
