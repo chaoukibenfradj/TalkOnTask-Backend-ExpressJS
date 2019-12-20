@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-let db = "mongodb://127.0.0.1:27017/ProjectManager";
+let db = "mongodb://heroku_s5qm8qz9:qj02hmi23lbhvgdhqvbq507g3b@ds257648.mlab.com:57648/heroku_s5qm8qz9";
 
 Mongoose.connect(db || process.env.MONGODB_URI, {
     useNewUrlParser: true,
