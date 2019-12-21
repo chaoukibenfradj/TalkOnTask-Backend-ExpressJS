@@ -98,3 +98,20 @@ exports.getUserByType = (req, res) => {
         });
     });;
 }
+
+exports.getUserById = (req, res) => {
+    id = req.params.id;
+    User.findOne({
+        _id: id
+    })
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
