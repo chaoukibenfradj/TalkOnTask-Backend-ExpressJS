@@ -51,6 +51,26 @@ io.on('connection', client => {
 			console.log(data);
 			io.emit('msg:' + message.toId + ':' + message.fromId, data);
 			io.emit('sent:' + message.fromId + ':' + message.toId, data);
+
+			msgController.saveLastMessage(data).then(res => {
+				console.log("Saving the fucking Last Message");
+
+				msgController.getLastMessage(message.fromId, message.toId).then(data => {
+					console.log("Emmiting");
+					io.emit('lastMessage:' + message.fromId, {
+						message: data
+					});
+					io.emit('lastMessage:' + message.toId, {
+						message: data
+					});
+				}).catch(err => {
+					console.log(err);
+					console.log("Erreur");
+				})
+			}).catch(err => {
+				console.log(err);
+				console.log("err saving last message");
+			});
 		});
 	});
 });
