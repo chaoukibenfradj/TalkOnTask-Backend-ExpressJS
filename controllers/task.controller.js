@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 exports.addTask = (req, res) => {
     projectId = req.body.projectId;
-    devTeamId = req.body.devTeamId;
+    devId = req.body.devId;
     taskTitle = req.body.taskTitle;
     taskDescription = req.body.taskDescription;
     start_date = req.body.start_date;
@@ -11,7 +11,7 @@ exports.addTask = (req, res) => {
     const task = new Task({
         _id: new mongoose.Types.ObjectId(),
         projectId: projectId,
-        devTeamId: devTeam,
+        devId: devId,
         taskTitle: taskTitle,
         taskDescription: taskDescription,
         start_date: start_date,

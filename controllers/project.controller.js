@@ -34,8 +34,8 @@ exports.add_project = (req, res) => {
 
 exports.getProjectByChefId = (req, res) => {
   Project.find({
-      chef: req.params.id
-    })
+    chef: req.params.id
+  })
     .then(data => {
       return res.status(200).json({
         message: 'ok',
@@ -46,11 +46,28 @@ exports.getProjectByChefId = (req, res) => {
         error: JSON.stringify(err)
       });
     });
-  }
-  
-  
-  exports.getAllProjects = (req, res) => {
-    Project.find().then(data => {
+}
+
+
+exports.getAllProjects = (req, res) => {
+  Project.find().then(data => {
+    return res.status(200).json({
+      message: 'ok',
+      data: data
+    });
+  }).catch(err => {
+    return res.status(500).json({
+      error: JSON.stringify(err)
+    });
+  });
+}
+
+exports.getProjectById = (req, res) => {
+  Project.findOne({
+    _id: req.params.id
+  }).populate('devTeamId')
+    .exec()
+    .then(data => {
       return res.status(200).json({
         message: 'ok',
         data: data
@@ -60,4 +77,26 @@ exports.getProjectByChefId = (req, res) => {
         error: JSON.stringify(err)
       });
     });
-  }
+}
+
+exports.getListDevByProjectId = (req, res) => {
+  const projectId = req.params.projectId;
+  Project.findOne({
+    _id: projectId
+  })
+    .populate('devTeamId')
+    .exec()
+    .then(data => {
+      return res.status(200).json({
+        message: "ok",
+        data: data.devTeamId
+      });
+    }).catch(err => {
+      return res.status(500).json({
+        error: JSON.stringify(err)
+      });
+    });
+
+}
+
+
