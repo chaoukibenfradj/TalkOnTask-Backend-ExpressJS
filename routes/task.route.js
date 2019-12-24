@@ -8,5 +8,7 @@ router.get('/t/:id', taskCtrl.getTaskByProjectId) ;
 router.get('/dev/all/:id', taskCtrl.getTaskByDeveloperId) ; 
 router.get('/dev/project/:devId/:projectId', taskCtrl.getTaskByDeveloperId) ; 
 router.patch('/update/state/:id', taskCtrl.updateTaskState);
+router.delete('/delete/:id', taskCtrl.deleteTask);
+router.patch('/update/:id', taskCtrl.updateTaskDetails) ;
 
 module.exports = router;

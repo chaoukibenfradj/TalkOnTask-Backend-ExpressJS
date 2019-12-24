@@ -36,16 +36,19 @@ exports.addTask = (req, res) => {
 exports.getTaskById = (req, res) => {
     Task.findOne({
         _id: req.params.id
-    }).then(data => {
-        return res.status(200).json({
-            message: 'ok',
-            data: data
-        });
-    }).catch(err => {
-        return res.status(500).json({
-            error: JSON.stringify(err)
-        });
-    });;
+    })
+        .populate('devId')
+        .exec()
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });;
 }
 
 exports.getTaskByProjectId = (req, res) => {
@@ -103,6 +106,44 @@ exports.updateTaskState = (req, res) => {
         {
             state: newState
         })
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
+
+exports.deleteTask = (req, res) => {
+    const id = req.params.id;
+    Task.findOneAndDelete({
+        _id: id
+    })
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
+
+exports.updateTaskDetails = (req, res) => {
+    const id = req.params.id;
+    const newTask = req.body.newTask;
+    console.log(id, newTask);
+    Task.findOneAndUpdate({
+        _id: id
+    },
+        newTask
+    )
         .then(data => {
             return res.status(200).json({
                 message: 'ok',
