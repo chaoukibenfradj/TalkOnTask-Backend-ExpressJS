@@ -7,4 +7,6 @@ router.get('/pm/:id', projectController.getProjectByChefId) ;
 router.get('/all', projectController.getAllProjects);
 router.get('/p/:id', projectController.getProjectById) ; 
 router.get('/dev/:projectId', projectController.getListDevByProjectId) ;
+router.get('/devp/:id' , projectController.getAllDevProjects)
+
 module.exports = router;

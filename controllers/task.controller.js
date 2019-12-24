@@ -93,3 +93,24 @@ exports.getTaskByDeveloperIdAndProjectId = (req, res) => {
         });
     });;
 }
+
+exports.updateTaskState = (req, res) => {
+    const id = req.params.id;
+    const newState = req.body.state;
+    Task.findOneAndUpdate({
+        _id: id
+    },
+        {
+            state: newState
+        })
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}

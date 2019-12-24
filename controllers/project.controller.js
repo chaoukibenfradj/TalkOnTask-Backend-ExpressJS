@@ -65,7 +65,16 @@ exports.getAllProjects = (req, res) => {
 exports.getProjectById = (req, res) => {
   Project.findOne({
     _id: req.params.id
-  }).populate('devTeamId')
+  }).populate([
+    {
+      path: 'devTeamId',
+      model: 'User'
+    },
+    {
+      path: 'chef',
+      model: 'User'
+    }
+  ])
     .exec()
     .then(data => {
       return res.status(200).json({
@@ -84,7 +93,16 @@ exports.getListDevByProjectId = (req, res) => {
   Project.findOne({
     _id: projectId
   })
-    .populate('devTeamId')
+    .populate([
+      {
+        path: 'devTeamId',
+        model: 'User'
+      },
+      {
+        path: 'chef',
+        model: 'User'
+      }
+    ])
     .exec()
     .then(data => {
       return res.status(200).json({
@@ -96,7 +114,24 @@ exports.getListDevByProjectId = (req, res) => {
         error: JSON.stringify(err)
       });
     });
-
 }
+
+exports.getAllDevProjects = (req, res) => {
+  const devId = req.params.id;
+  Project.find({
+    devTeamId: devId
+  })
+    .then(data => {
+      return res.status(200).json({
+        message: 'ok',
+        data: data
+      });
+    }).catch(err => {
+      return res.status(500).json({
+        error: JSON.stringify(err)
+      });
+    });
+}
+
 
 
