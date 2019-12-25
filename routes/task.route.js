@@ -14,5 +14,5 @@ router.post('/req/', taskCtrl.saveTaskRequest);
 router.get('/req/dev/:id', taskCtrl.getTaskReqByDevId);
 router.delete('/req/:id', taskCtrl.deleteTaskRequest);
 router.patch('/req/ok/:id', taskCtrl.acceptTaskRequest);
-
+router.get('/req/pm/:id', taskCtrl.getTaskReqByPMId);
 module.exports = router;

@@ -1,7 +1,7 @@
 const Task = require('./../models/task.model');
 const mongoose = require('mongoose');
 const TaskRequest = require('./../models/task-request.model');
-
+const Project = require('./../models/project.model');
 exports.addTask = (req, res) => {
     projectId = req.body.projectId;
     devId = req.body.devId;
@@ -263,6 +263,45 @@ exports.getTaskReqByDevId = (req, res) => {
                 message: 'ok',
                 data: data
             });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
+
+exports.getTaskReqByPMId = (req, res) => {
+    const id = req.params.id;
+    Project.find({
+        chef: id
+    })
+        .select('_id')
+        .exec()
+        .then(data => {
+            const idArray = data.map(element => {
+                return element._id;
+            });
+            TaskRequest.find({
+                projectId: { $in: idArray }
+            })
+                .populate(
+                    [
+                        { model: 'User', path: 'devId' },
+                        { model: 'Project', path: 'projectId' },
+                        { model: 'Task', path: 'taskId' }
+                    ]
+                )
+                .exec()
+                .then(taskReq => {
+                    return res.status(200).json({
+                        message: 'ok',
+                        data: taskReq
+                    });
+                }).catch(err => {
+                    return res.status(500).json({
+                        error: JSON.stringify(err)
+                    });
+                });
         }).catch(err => {
             return res.status(500).json({
                 error: JSON.stringify(err)
