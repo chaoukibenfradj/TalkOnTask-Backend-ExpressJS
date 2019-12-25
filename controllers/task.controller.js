@@ -1,5 +1,6 @@
 const Task = require('./../models/task.model');
 const mongoose = require('mongoose');
+const TaskRequest = require('./../models/task-request.model');
 
 exports.addTask = (req, res) => {
     projectId = req.body.projectId;
@@ -28,7 +29,7 @@ exports.addTask = (req, res) => {
             return res.status(500).json({
                 error: JSON.stringify(err)
             });
-        });;
+        });
 }
 
 
@@ -144,6 +145,119 @@ exports.updateTaskDetails = (req, res) => {
     },
         newTask
     )
+        .then(data => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
+
+exports.saveTaskRequest = async (req, res) => {
+    const devId = req.body.devId;
+    const taskId = req.body.taskId;
+    const requestDate = req.body.requestDate;
+    const projectId = req.body.projectId;
+    try {
+        const nbTask = await TaskRequest.find({
+            taskId: taskId,
+            devId: devId,
+            projectId: projectId
+        });
+        if (nbTask.length == 0) {
+            const taskRequest = new TaskRequest({
+                _id: new mongoose.Types.ObjectId(),
+                devId: devId,
+                taskId: taskId,
+                projectId: projectId,
+                requestDate: requestDate
+            });
+            taskRequest.save().then(data => {
+                return res.status(200).json({
+                    message: 'ok',
+                    data: data
+                });
+            }).catch(err => {
+                return res.status(500).json({
+                    error: JSON.stringify(err)
+                });
+            });
+        } else {
+            console.log('exist');
+            return res.status(200).json({
+                message: "ok",
+                data: 'exist'
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            error: JSON.stringify(err)
+        });
+    }
+}
+
+exports.acceptTaskRequest = (req, res) => {
+    const id = req.params.id;
+    TaskRequest.findOne({ _id: id })
+        .then(data => {
+            Task.findOneAndUpdate({ _id: data.taskId }, { devId: data.devId })
+                .then(data1 => {
+                    TaskRequest.findOneAndDelete({ _id: id })
+                        .then(data2 => {
+                            return res.status(200).json({
+                                message: 'ok',
+                                data: data2
+                            });
+                        }).catch(err => {
+                            return res.status(500).json({
+                                error: JSON.stringify(err)
+                            });
+                        })
+                }).catch(err => {
+                    return res.status(500).json({
+                        error: JSON.stringify(err)
+                    });
+                });
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}
+
+exports.deleteTaskRequest = (req, res) => {
+    const id = req.params.id;
+    TaskRequest.findOneAndDelete({ _id: id })
+        .then(data2 => {
+            return res.status(200).json({
+                message: 'ok',
+                data: data2
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        })
+}
+
+exports.getTaskReqByDevId = (req, res) => {
+    const id = req.params.id;
+    TaskRequest.find({
+        devId: id
+    }, null, { sort: { requestDate: -1 } })
+        .populate(
+            [
+                { model: 'User', path: 'devId' },
+                { model: 'Project', path: 'projectId' },
+                { model: 'Task', path: 'taskId' }
+            ]
+        )
+        .exec()
         .then(data => {
             return res.status(200).json({
                 message: 'ok',
