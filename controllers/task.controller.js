@@ -2,6 +2,10 @@ const Task = require('./../models/task.model');
 const mongoose = require('mongoose');
 const TaskRequest = require('./../models/task-request.model');
 const Project = require('./../models/project.model');
+const dateFormat = require('dateformat');
+const User = require('./../models/user.model');
+const Notification = require('./notification.controller');
+
 exports.addTask = (req, res) => {
     projectId = req.body.projectId;
     devId = req.body.devId;
@@ -19,8 +23,20 @@ exports.addTask = (req, res) => {
         end_date: end_date,
     });
     task.save()
-        .then(data => {
-            //Notify the user that he had new task - We need to Use Push Notification
+        .then(async (data) => {
+            var readableDate = dateFormat(data.time, "HH:MM:ss yyyy-mm-dd");
+            if (data.devId && data.devId !== "") {
+                try {
+                    const user = await User.findOne({ _id: data.devId });
+                    if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
+                        const title = `${user.firstName} ${user.lastName} - New Task Affected to You !`;
+                        const message = `You have been affected to a new task : ${data.taskTitle}\nAt ${readableDate}`;
+                        Notification.sendAffectedTaskToDev(user.fcmToken, title, message, data._id); 
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
             return res.status(201).json({
                 message: 'ok',
                 data: data._id
@@ -39,8 +55,8 @@ exports.getTaskById = (req, res) => {
         _id: req.params.id
     })
         .populate([{
-            path:'devId', 
-            model:'User'
+            path: 'devId',
+            model: 'User'
         }])
         .exec()
         .then(data => {
