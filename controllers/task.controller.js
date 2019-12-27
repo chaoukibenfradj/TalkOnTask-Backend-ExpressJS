@@ -38,9 +38,13 @@ exports.getTaskById = (req, res) => {
     Task.findOne({
         _id: req.params.id
     })
-        .populate('devId')
+        .populate([{
+            path:'devId', 
+            model:'User'
+        }])
         .exec()
         .then(data => {
+            console.log(data);
             return res.status(200).json({
                 message: 'ok',
                 data: data

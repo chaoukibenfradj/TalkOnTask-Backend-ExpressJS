@@ -115,3 +115,22 @@ exports.getUserById = (req, res) => {
             });
         });
 }
+exports.updateFCMToken = (req, res) => {
+    const token = req.body.token;
+    const id = req.params.id;
+    User.findOneAndUpdate({
+        _id: id
+    },
+        {
+            fcmToken: token
+        }).then(data => {
+            console.log(data);
+            return res.status(200).json({
+                message: 'ok',
+            });
+        }).catch(err => {
+            return res.status(500).json({
+                error: JSON.stringify(err)
+            });
+        });
+}

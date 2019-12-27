@@ -7,5 +7,6 @@ router.post('/login', userController.login) ;
 router.get('/all', userController.getAllUsers);
 router.get('/type/:userType', userController.getUserByType) ;
 router.get('/id/:id', userController.getUserById) ;
+router.patch('/token/:id', userController.updateFCMToken)
 
 module.exports = router;

@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start":"node app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "BEN FREDJ Chaouki & NASRAOUI Sihem",
@@ -13,6 +13,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fcm-node": "^1.5.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.9",
     "socket.io": "^2.3.0"
