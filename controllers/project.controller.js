@@ -1,5 +1,9 @@
 const Project = require('./../models/project.model');
 const mongoose = require('mongoose');
+const User = require('./../models/user.model');
+const Notification = require('./notification.controller');
+const dateFormat = require('dateformat');
+
 
 exports.add_project = (req, res) => {
   const title = req.body.title;
@@ -19,11 +23,37 @@ exports.add_project = (req, res) => {
     estimated_end_date: estimated_end_date,
     devTeamId: devTeam
   })
-  project.save().then(data => {
+  project.save().then(async (data) => {
+    var readableDate = dateFormat(data.time, "HH:MM:ss yyyy-mm-dd");
+    if (data.devTeamId.length > 0) {
+      try {
+
+        const users = await User.find({
+          _id: { $in: data.devTeamId }
+        });
+
+        if (users) {
+          users.forEach(user => {
+            if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
+              const title = `${user.firstName} : New Project Affected to You !`;
+              console.log('Title :',title);
+              const message = `You have been assigned to a new project : ${data.title}\nAt ${readableDate}`;
+              Notification.sendAffectedProject(user.fcmToken, title, message, data._id);
+            }
+          });
+        }
+
+      } catch (error) {
+        console.log(error);
+        
+      }
+    }
+
     return res.status(201).json({
       message: 'ok',
       data: data
     });
+
   }).catch(err => {
     return res.status(500).json({
       error: JSON.stringify(err)

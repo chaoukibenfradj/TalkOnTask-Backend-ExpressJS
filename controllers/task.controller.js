@@ -29,8 +29,8 @@ exports.addTask = (req, res) => {
                 try {
                     const user = await User.findOne({ _id: data.devId });
                     if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
-                        const title = `${user.firstName} ${user.lastName} - New Task Affected to You !`;
-                        const message = `You have been affected to a new task : ${data.taskTitle}\nAt ${readableDate}`;
+                        const title = `${user.firstName} : New Task Assigned to You !`;
+                        const message = `You have been assigned to a new task : ${data.taskTitle}\nAt ${readableDate}`;
                         Notification.sendAffectedTaskToDev(user.fcmToken, title, message, data._id); 
                     }
                 } catch (error) {
