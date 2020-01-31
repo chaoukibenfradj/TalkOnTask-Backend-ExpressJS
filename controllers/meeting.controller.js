@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const User = require('./../models/user.model');
 const Notification = require('./notification.controller');
 const dateFormat = require('dateformat');
-
+const Project = require('./../models/project.model');
 exports.add_meeting = (req, res) => {
   const subject = req.body.subject;
   const description = req.body.description;
@@ -24,34 +24,37 @@ exports.add_meeting = (req, res) => {
   })
   meeting.save().then(async (data) => {
     var readableDate = dateFormat(data.time, "HH:MM:ss yyyy-mm-dd");
-    if (data.selectedProject.devTeamId.length > 0) {
-      try {
-        const users = await User.find({
-          _id: { $in: data.selectedProject.devTeamId }
-        });
-        if (users) {
-          users.forEach(user => {
-            if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
-              const title = `${user.firstName} : New Meeting affected to you !`;
+
+    const project = await Project.findOne({
+      _id: data.selectedProject
+    })
+      .populate('devTeamId')
+      .exec();
+    if (project) {
+
+      if (project.devTeamId && project.devTeamId.length > 0) {
+        try {
+          project.devTeamId.forEach(user => {
+            if (typeof (user.fcmToken) !== 'undefined' || user.fcmToken !== '') {
+              const title = `${user.firstName} : New Meeting !`;
               console.log('Title :', title);
               const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
               Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
             }
           });
+        } catch (error) {
+          console.log(error);
         }
-
-      } catch (error) {
-        console.log(error);
-
       }
-    }
 
+    }
     return res.status(201).json({
       message: 'ok',
       data: data
     });
 
   }).catch(err => {
+    console.log(err);
     return res.status(500).json({
       error: JSON.stringify(err)
     });
@@ -64,12 +67,17 @@ exports.getMeetingByChefId = (req, res) => {
   Meeting.find({
     chef: req.params.id
   })
-  .populate([
-    {
-      path: 'selectedProject',
-      model: 'Project'
-    }
-  ])
+    .populate([
+      {
+        path: 'selectedProject',
+        model: 'Project'
+      }
+      ,
+      {
+        path: 'chef',
+        model: 'User'
+      }
+    ])
     .exec()
     .then(data => {
       return res.status(200).json({
@@ -90,6 +98,10 @@ exports.getAllMeetings = (req, res) => {
       {
         path: 'selectedProject',
         model: 'Project'
+      },
+      {
+        path: 'chef',
+        model: 'User'
       }
     ])
     .exec()
@@ -112,6 +124,10 @@ exports.getMeetingById = (req, res) => {
     {
       path: 'selectedProject',
       model: 'Project'
+    },
+    {
+      path: 'chef',
+      model: 'User'
     }
   ])
     .exec()
@@ -136,6 +152,11 @@ exports.getListDevByMeetingId = (req, res) => {
       {
         path: 'selectedProject',
         model: 'Project'
+      }
+      ,
+      {
+        path: 'chef',
+        model: 'User'
       }
     ])
     .exec()

@@ -72,3 +72,38 @@ exports.sendAffectedProject = (fcmToken, title, body, projectId) => {
         }
     })
 }
+
+exports.sendAffectedMeeting = (fcmToken, title, body, meetingId) => {
+    var message = {
+        to: fcmToken,
+        priority: 'high',
+        content_available: true,
+        notification: { //notification object
+            alert: title,
+            title: title,
+            body: body,
+            //image: taskImage,
+            icon: taskImage,
+            sound: "sound",
+            badge: "1",
+            vibrate: "true",
+            click_action: "FCM_PLUGIN_ACTIVITY",
+            priority: "2"
+        },
+        data: {
+            notifType: 'meeting',
+            meetingId: meetingId
+        },
+        android: {
+            priority: "high"
+        }
+    };
+    fcm.send(message, function (err, response) {
+
+        if (err) {
+            console.log("Erreur In Sending Notification : ", err);
+        } else {
+            console.log("Notification Sent : ", response);
+        }
+    })
+}
