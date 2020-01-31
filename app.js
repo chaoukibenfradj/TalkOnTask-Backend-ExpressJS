@@ -17,6 +17,9 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+app.use('/uploads', express.static(__dirname + '/uploads'))
+app.use(express.static('public'));
+
 let db = "mongodb://heroku_s5qm8qz9:qj02hmi23lbhvgdhqvbq507g3b@ds257648.mlab.com:57648/heroku_s5qm8qz9";
 
 Mongoose.connect(db || process.env.MONGODB_URI, {
