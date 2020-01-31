@@ -5,65 +5,72 @@ const Notification = require('./notification.controller');
 const dateFormat = require('dateformat');
 
 exports.add_meeting = (req, res) => {
-    const subject = req.body.subject;
-    const description = req.body.description;
-    const chef = req.body.chef;
-    const date = req.body.date;
-    const duration = req.body.duration;
-    const selectedProject = req.body.selectedProject;
+  const subject = req.body.subject;
+  const description = req.body.description;
+  const chef = req.body.chef;
+  const date = req.body.date;
+  const duration = req.body.duration;
+  const selectedProject = req.body.selectedProject;
 
-  
-    const meeting = new Meeting({
-      _id: new mongoose.Types.ObjectId(),
-      subject: subject,
-      description: description,
-      chef: chef,
-      date: date,
-      duration: duration,
-      selectedProject: selectedProject
-    })
-    meeting.save().then(async (data) => {
+
+  const meeting = new Meeting({
+    _id: new mongoose.Types.ObjectId(),
+    subject: subject,
+    description: description,
+    chef: chef,
+    date: date,
+    duration: duration,
+    selectedProject: selectedProject
+  })
+  meeting.save().then(async (data) => {
     var readableDate = dateFormat(data.time, "HH:MM:ss yyyy-mm-dd");
-     if (data.selectedProject.devTeamId.length > 0) {
-        try {
-          const users = await User.find({
-            _id: { $in: data.selectedProject.devTeamId }
+    if (data.selectedProject.devTeamId.length > 0) {
+      try {
+        const users = await User.find({
+          _id: { $in: data.selectedProject.devTeamId }
+        });
+        if (users) {
+          users.forEach(user => {
+            if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
+              const title = `${user.firstName} : New Meeting affected to you !`;
+              console.log('Title :', title);
+              const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
+              Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
+            }
           });
-          if (users) {
-            users.forEach(user => {
-              if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
-                const title = `${user.firstName} : New Meeting affected to you !`;
-                console.log('Title :',title);
-                const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
-                Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
-              }
-            });
-          }
-  
-        } catch (error) {
-          console.log(error);
-          
         }
+
+      } catch (error) {
+        console.log(error);
+
       }
-  
-      return res.status(201).json({
-        message: 'ok',
-        data: data
-      });
-  
-    }).catch(err => {
-      return res.status(500).json({
-        error: JSON.stringify(err)
-      });
-    });;
-  }
+    }
+
+    return res.status(201).json({
+      message: 'ok',
+      data: data
+    });
+
+  }).catch(err => {
+    return res.status(500).json({
+      error: JSON.stringify(err)
+    });
+  });;
+}
 
 
-  
+
 exports.getMeetingByChefId = (req, res) => {
   Meeting.find({
     chef: req.params.id
   })
+  .populate([
+    {
+      path: 'selectedProject',
+      model: 'Project'
+    }
+  ])
+    .exec()
     .then(data => {
       return res.status(200).json({
         message: 'ok',
@@ -78,16 +85,24 @@ exports.getMeetingByChefId = (req, res) => {
 
 
 exports.getAllMeetings = (req, res) => {
-  Meeting.find().then(data => {
-    return res.status(200).json({
-      message: 'ok',
-      data: data
+  Meeting.find()
+    .populate([
+      {
+        path: 'selectedProject',
+        model: 'Project'
+      }
+    ])
+    .exec()
+    .then(data => {
+      return res.status(200).json({
+        message: 'ok',
+        data: data
+      });
+    }).catch(err => {
+      return res.status(500).json({
+        error: JSON.stringify(err)
+      });
     });
-  }).catch(err => {
-    return res.status(500).json({
-      error: JSON.stringify(err)
-    });
-  });
 }
 
 exports.getMeetingById = (req, res) => {
@@ -95,12 +110,8 @@ exports.getMeetingById = (req, res) => {
     _id: req.params.id
   }).populate([
     {
-      path: 'devTeamId',
-      model: 'User'
-    },
-    {
-      path: 'chef',
-      model: 'User'
+      path: 'selectedProject',
+      model: 'Project'
     }
   ])
     .exec()
@@ -123,12 +134,8 @@ exports.getListDevByMeetingId = (req, res) => {
   })
     .populate([
       {
-        path: 'devTeamId',
-        model: 'User'
-      },
-      {
-        path: 'chef',
-        model: 'User'
+        path: 'selectedProject',
+        model: 'Project'
       }
     ])
     .exec()
