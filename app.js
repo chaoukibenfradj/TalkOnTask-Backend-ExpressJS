@@ -10,6 +10,7 @@ const projectRoute = require('./routes/project.route');
 const taskRoute = require('./routes/task.route');
 const messageRoute = require('./routes/message.route');
 const msgController = require('./controllers/message.controller');
+const meetingRoute = require('./routes/meeting.route');
 
 app.use(bodyParser.urlencoded({
 	extended: false
@@ -35,7 +36,7 @@ app.use('/user', userRoute);
 app.use('/task', taskRoute);
 app.use('/project', projectRoute);
 app.use('/message', messageRoute);
-
+app.use('/meeting', meetingRoute);
 
 
 const port = process.env.PORT || 3000;
@@ -53,7 +54,7 @@ io.on('connection', client => {
 			io.emit('sent:' + message.fromId + ':' + message.toId, data);
 
 			msgController.saveLastMessage(data).then(res => {
-				console.log("Saving the fucking Last Message");
+				console.log("Saving Last Message");
 
 				msgController.getLastMessage(message.fromId, message.toId).then(data => {
 					console.log("Emmiting");
