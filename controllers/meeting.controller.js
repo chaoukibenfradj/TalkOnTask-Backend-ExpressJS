@@ -39,7 +39,7 @@ exports.add_meeting = (req, res) => {
               if (typeof (user.fcmToken) !== 'undefined' || user.fcmToken !== '') {
                 const title = `${user.firstName} : New Meeting !`;
                 console.log('Title :', title);
-                const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
+                const message = `You should participate to this meeting : ${data.subject}\nAt ${readableDate}`;
                 Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
               }
             }
