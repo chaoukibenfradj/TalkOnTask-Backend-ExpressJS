@@ -35,11 +35,13 @@ exports.add_meeting = (req, res) => {
       if (project.devTeamId && project.devTeamId.length > 0) {
         try {
           project.devTeamId.forEach(user => {
-            if (typeof (user.fcmToken) !== 'undefined' || user.fcmToken !== '') {
-              const title = `${user.firstName} : New Meeting !`;
-              console.log('Title :', title);
-              const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
-              Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
+            if (user.notification === 'true') {
+              if (typeof (user.fcmToken) !== 'undefined' || user.fcmToken !== '') {
+                const title = `${user.firstName} : New Meeting !`;
+                console.log('Title :', title);
+                const message = `You should participate to this meeting : ${data.title}\nAt ${readableDate}`;
+                Notification.sendAffectedMeeting(user.fcmToken, title, message, data._id);
+              }
             }
           });
         } catch (error) {

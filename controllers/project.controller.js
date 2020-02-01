@@ -134,12 +134,16 @@ exports.add_project = (req, res) => {
 
         if (users) {
           users.forEach(user => {
-            if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
-              const title = `${user.firstName} : New Project Affected to You !`;
-              console.log('Title :', title);
-              const message = `You have been assigned to a new project : ${data.title}\nAt ${readableDate}`;
-              Notification.sendAffectedProject(user.fcmToken, title, message, data._id);
+
+            if (user.notification === 'true') {
+              if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
+                const title = `${user.firstName} : New Project Affected to You !`;
+                console.log('Title :', title);
+                const message = `You have been assigned to a new project : ${data.title}\nAt ${readableDate}`;
+                Notification.sendAffectedProject(user.fcmToken, title, message, data._id);
+              }
             }
+
           });
         }
 

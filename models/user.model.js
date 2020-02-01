@@ -11,6 +11,7 @@ const userSchema = mongoose.Schema({
     birthday: { type: Date },
     userRole: { type: String },
     gender: { type: String },
+    notification: { type: String },
     fcmToken: { type: String, default: '' }
 })
 

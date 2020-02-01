@@ -134,3 +134,27 @@ exports.updateFCMToken = (req, res) => {
             });
         });
 }
+
+exports.change_notification = (req, res) => {
+    const id = req.params.id;
+
+    User.findOneAndUpdate({
+        _id: id
+    },
+        {
+            notification: req.body.notification
+        }
+    ).then(data => {
+        return res.status(200).json({
+            message: 'ok',
+            data: data
+        });
+    }).catch(err => {
+        return res.status(500).json({
+            error: JSON.stringify(err)
+        });
+    });
+
+
+
+}

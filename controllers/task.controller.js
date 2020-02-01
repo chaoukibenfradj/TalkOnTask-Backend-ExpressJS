@@ -28,10 +28,12 @@ exports.addTask = (req, res) => {
             if (data.devId && data.devId !== "") {
                 try {
                     const user = await User.findOne({ _id: data.devId });
-                    if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
-                        const title = `${user.firstName} : New Task Assigned to You !`;
-                        const message = `You have been assigned to a new task : ${data.taskTitle}\nAt ${readableDate}`;
-                        Notification.sendAffectedTaskToDev(user.fcmToken, title, message, data._id); 
+                    if (user.notification === 'true') {
+                        if (typeof (user.fcmToken) == 'undefined' || user.fcmToken !== '') {
+                            const title = `${user.firstName} : New Task Assigned to You !`;
+                            const message = `You have been assigned to a new task : ${data.taskTitle}\nAt ${readableDate}`;
+                            Notification.sendAffectedTaskToDev(user.fcmToken, title, message, data._id);
+                        }
                     }
                 } catch (error) {
                     console.log(error);
